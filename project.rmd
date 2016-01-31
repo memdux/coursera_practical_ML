@@ -1,0 +1,56 @@
+---
+title: "Practical Machine Learning - Project"
+author: "Miguel Elduque"
+date: "30 de enero de 2016"
+output: word_document
+---
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset).
+
+Load Test and Training Data sets
+```{r}
+require(caret)
+require(doMC)
+training = read.csv("pml-training.csv", na.strings=c("NA",""), dec = ".")
+test = read.csv("pml-testing.csv", dec =".")
+
+head(training)
+summary(training)
+```
+
+There are a lot of columns in the data set and we can see in the summary that there are a large number of NA in them. 
+
+I exclude those columns that contain more than 80% of entries = NA (80% of 19622 obs = 15697). We keep 60 variables that will be the entry for our model. I take this approach based on the performance problems that can be derived from large number of predictors and following some advice found in the forum of the course.
+
+```{r}
+cut<-apply(!is.na(training),2,sum)>15697
+training_cut<-training[,cut]
+test_cut<-training[,cut]
+dim(training_cut)
+```
+
+Due to performance problems in my computer i am taking only a subset of the overall training data set for the model train.
+
+Model 1 is random forest with 5 fold Cross-Validation and allowing parallel processing
+
+```{r}
+set.seed(33833)
+train_subset<-createDataPartition(y=training_cut$classe,p=0.3,list=FALSE)
+training1<-training_cut[train_subset,]
+
+registerDoMC(cores = 5)
+model_1<-train(classe~.,data=training1,method="rf",
+                trControl=trainControl(method="cv",number=5),
+                prox=TRUE,allowParallel=TRUE)
+
+print(model_1)
+
+
+pred_rf <- predict(model_1, test_cut)
+confusionMatrix(pred_rf, test_cut$classe)$overall[1]
+
+```
+
+Accuracy on the test set is 1 so the model has successfully predicted the full set of the test data set.
+
+I wanted to perform further test on the assignment but could not complete them on time:
+Create a larger test set and compare between different models (rf, gbm, with/without x-validation). Given the fact the model 1 is able to get the right prediction for the full site i consider this model robust enough.
