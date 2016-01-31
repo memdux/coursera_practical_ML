@@ -50,7 +50,8 @@ pred_rf <- predict(model_1, test_cut)
 
 ```
 
-Accuracy on the training set is close to 1.
+Accuracy on the training set is close to 1. However when running the predictions against the test the results are not satisfactory (all predictions = A, which is not accurate at all). 
+Maybe the split to avoid performance problems was not correct. I will keep tryging.
 
 I wanted to perform further test on the assignment but could not complete them on time:
-Create a larger test set and compare between different models (rf, gbm, with/without x-validation). Given the fact the model 1 is able to get the right prediction for the full site i consider this model robust enough.
+Create a larger test set and compare between different models (rf, gbm, with/without x-validation). G
