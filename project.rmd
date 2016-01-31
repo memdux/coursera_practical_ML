@@ -46,11 +46,11 @@ print(model_1)
 
 
 pred_rf <- predict(model_1, test_cut)
-confusionMatrix(pred_rf, test_cut$classe)$overall[1]
+
 
 ```
 
-Accuracy on the test set is 1 so the model has successfully predicted the full set of the test data set.
+Accuracy on the training set is close to 1.
 
 I wanted to perform further test on the assignment but could not complete them on time:
 Create a larger test set and compare between different models (rf, gbm, with/without x-validation). Given the fact the model 1 is able to get the right prediction for the full site i consider this model robust enough.
