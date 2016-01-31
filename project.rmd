@@ -24,7 +24,7 @@ I exclude those columns that contain more than 80% of entries = NA (80% of 19622
 ```{r}
 cut<-apply(!is.na(training),2,sum)>15697
 training_cut<-training[,cut]
-test_cut<-training[,cut]
+test_cut<-test[,cut]
 dim(training_cut)
 ```
 
