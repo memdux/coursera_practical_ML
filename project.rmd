@@ -21,10 +21,15 @@ There are a lot of columns in the data set and we can see in the summary that th
 
 I exclude those columns that contain more than 80% of entries = NA (80% of 19622 obs = 15697). We keep 60 variables that will be the entry for our model. I take this approach based on the performance problems that can be derived from large number of predictors and following some advice found in the forum of the course.
 
+I exclude as well the 7th first rows as they have provoqued wrong results when running the model in non-reported model (overfitting on train with very low accuracy on the quiz)
+
 ```{r}
 cut<-apply(!is.na(training),2,sum)>15697
 training_cut<-training[,cut]
 test_cut<-test[,cut]
+
+training_cut2<- training_cut[,8:length(colnames(training_cut))]
+test_cut2<- test_cut[,8:length(colnames(test_cut))]
 dim(training_cut)
 ```
 
@@ -34,8 +39,10 @@ Model 1 is random forest with 5 fold Cross-Validation and allowing parallel proc
 
 ```{r}
 set.seed(33833)
-train_subset<-createDataPartition(y=training_cut$classe,p=0.3,list=FALSE)
-training1<-training_cut[train_subset,]
+train_subset<-createDataPartition(y=training_cut2$classe,p=0.3,list=FALSE)
+
+training1<-training_cut2[train_subset,]
+test1<-training_cut2[-train_subset,]
 
 registerDoMC(cores = 5)
 model_1<-train(classe~.,data=training1,method="rf",
@@ -44,14 +51,12 @@ model_1<-train(classe~.,data=training1,method="rf",
 
 print(model_1)
 
-
-pred_rf <- predict(model_1, test_cut)
-
-
+predict_test1 = predict(model_1, test1)
+predict_quiz = predict(model_1, test_cut)
+print(confusionMatrix(predict_test1, test1$classe), digits=4)
+confusionMatrix(predict_test1 , test1$classe)$overall[1]
+predict_quiz
 ```
 
-Accuracy on the training set is close to 1. However when running the predictions against the test the results are not satisfactory (all predictions = A, which is not accurate at all). 
-Maybe the split to avoid performance problems was not correct. I will keep tryging.
-
-I wanted to perform further test on the assignment but could not complete them on time:
-Create a larger test set and compare between different models (rf, gbm, with/without x-validation). G
+Accuracy on the training set is close to 1. Accuracy on the test is 0,9809 and on the coursera quiz is 20/20
+I wanted to perform further test on the assignment but could not complete them on time: Create a larger test set and compare between different models (rf, gbm, with/without x-validation). 
